@@ -114,7 +114,9 @@ export default function UserNewEditForm({
   } = methods;
 
   const values = watch();
-  const uploadImage = async (imageToUpload: any) => {
+  const uploadImage = async (imageToUpload: File) => {
+    console.log({ imageToUpload });
+
     if (imageToUpload == null) {
       return;
     }
@@ -179,7 +181,7 @@ export default function UserNewEditForm({
       console.log({ data });
       reset();
       enqueueSnackbar(!isEdit ? "Create success!" : "Update success!");
-      // push(PATH_DASHBOARD.user.list);
+      push(PATH_DASHBOARD.user.list);
     } catch (error) {
       console.error(error);
     }
