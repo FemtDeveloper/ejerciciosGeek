@@ -1,9 +1,9 @@
 // form
-import { useFormContext, Controller } from 'react-hook-form';
+import { useFormContext, Controller } from "react-hook-form";
 // @mui
-import { FormHelperText } from '@mui/material';
+import { FormHelperText } from "@mui/material";
 //
-import Editor, { Props as EditorProps } from '../editor';
+import Editor, { Props as EditorProps } from "../editor";
 
 // ----------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ export default function RHFEditor({ name, ...other }: Props) {
           onChange={field.onChange}
           error={!!error}
           helperText={
-            <FormHelperText error sx={{ px: 2, textTransform: 'capitalize' }}>
+            <FormHelperText error sx={{ px: 2, textTransform: "capitalize" }}>
               {error?.message}
             </FormHelperText>
           }

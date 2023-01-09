@@ -1,11 +1,12 @@
-import sum from 'lodash/sum';
-import uniqBy from 'lodash/uniqBy';
-import { createSlice } from '@reduxjs/toolkit';
+import sum from "lodash/sum";
+import uniqBy from "lodash/uniqBy";
+import { createSlice } from "@reduxjs/toolkit";
+import { v4 } from "uuid";
 // utils
-import axios from '../../utils/axios';
-import { ProductState, CartItem, Product } from '../../@types/product';
+import axios from "../../utils/axios";
+import { ProductState, CartItem, Product } from "../../@types/product";
 //
-import { dispatch } from '../store';
+import { dispatch } from "../store";
 
 // ----------------------------------------------------------------------
 
@@ -17,10 +18,10 @@ const initialState: ProductState = {
   sortBy: null,
   filters: {
     gender: [],
-    category: 'All',
+    category: "All",
     colors: [],
     priceRange: [0, 200],
-    rating: '',
+    rating: "",
   },
   checkout: {
     activeStep: 0,
@@ -30,11 +31,14 @@ const initialState: ProductState = {
     discount: 0,
     shipping: 0,
     billing: null,
+    // ----------------------
+    invoiceId: null,
+    invoiceDate: null,
   },
 };
 
 const slice = createSlice({
-  name: 'product',
+  name: "product",
   initialState,
   reducers: {
     // START LOADING
@@ -77,7 +81,9 @@ const slice = createSlice({
     getCart(state, action) {
       const cart = action.payload;
 
-      const subtotal = sum(cart.map((cartItem: CartItem) => cartItem.price * cartItem.quantity));
+      const subtotal = sum(
+        cart.map((cartItem: CartItem) => cartItem.price * cartItem.quantity)
+      );
       const discount = cart.length === 0 ? 0 : state.checkout.discount;
       const shipping = cart.length === 0 ? 0 : state.checkout.shipping;
       const billing = cart.length === 0 ? null : state.checkout.billing;
@@ -108,11 +114,13 @@ const slice = createSlice({
           return _product;
         });
       }
-      state.checkout.cart = uniqBy([...state.checkout.cart, product], 'id');
+      state.checkout.cart = uniqBy([...state.checkout.cart, product], "id");
     },
 
     deleteCart(state, action) {
-      const updateCart = state.checkout.cart.filter((item) => item.id !== action.payload);
+      const updateCart = state.checkout.cart.filter(
+        (item) => item.id !== action.payload
+      );
 
       state.checkout.cart = updateCart;
     },
@@ -172,6 +180,8 @@ const slice = createSlice({
 
     createBilling(state, action) {
       state.checkout.billing = action.payload;
+      state.checkout.invoiceDate = new Date().getTime();
+      state.checkout.invoiceId = v4();
     },
 
     applyDiscount(state, action) {
@@ -183,7 +193,8 @@ const slice = createSlice({
     applyShipping(state, action) {
       const shipping = action.payload;
       state.checkout.shipping = shipping;
-      state.checkout.total = state.checkout.subtotal - state.checkout.discount + shipping;
+      state.checkout.total =
+        state.checkout.subtotal - state.checkout.discount + shipping;
     },
   },
 });
@@ -193,20 +204,20 @@ export default slice.reducer;
 
 // Actions
 export const {
-  getCart,
   addCart,
-  resetCart,
-  onGotoStep,
-  onBackStep,
-  onNextStep,
-  deleteCart,
-  createBilling,
-  applyShipping,
   applyDiscount,
-  increaseQuantity,
+  applyShipping,
+  createBilling,
   decreaseQuantity,
-  sortByProducts,
+  deleteCart,
   filterProducts,
+  getCart,
+  increaseQuantity,
+  onBackStep,
+  onGotoStep,
+  onNextStep,
+  resetCart,
+  sortByProducts,
 } = slice.actions;
 
 // ----------------------------------------------------------------------
@@ -215,7 +226,9 @@ export function getProducts() {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response: { data: { products: Product[] } } = await axios.get('/api/products');
+      const response: { data: { products: Product[] } } = await axios.get(
+        "/api/products"
+      );
       dispatch(slice.actions.getProductsSuccess(response.data.products));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -229,9 +242,12 @@ export function getProduct(name: string) {
   return async () => {
     dispatch(slice.actions.startLoading());
     try {
-      const response: { data: { product: Product } } = await axios.get('/api/products/product', {
-        params: { name },
-      });
+      const response: { data: { product: Product } } = await axios.get(
+        "/api/products/product",
+        {
+          params: { name },
+        }
+      );
       dispatch(slice.actions.getProductSuccess(response.data.product));
     } catch (error) {
       console.error(error);

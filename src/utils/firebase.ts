@@ -1,9 +1,11 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { v4 } from "uuid";
 import { getStorage } from "firebase/storage";
 import { getDatabase, set, ref, update, remove } from "firebase/database";
+import { v4 } from "uuid";
 import { FormValuesProps } from "../sections/@dashboard/user/UserNewEditForm";
+import { FormValuesProps as FormProductValuesProps } from "../sections/@dashboard/e-commerce/ProductNewEditForm";
+import { Invoice } from "src/@types/product";
 
 const firebaseConfig = {
   apiKey: "AIzaSyA6cG8QFwTiRIB937Zfqnk-Pn13JetGTa4",
@@ -22,7 +24,6 @@ export const db = getDatabase();
 export function writeUserData(
   data: FormValuesProps,
   isEditing: boolean = false,
-  // isEditing: boolean,
   id: string
 ) {
   console.log({ dataFromfunction: data });
@@ -31,10 +32,33 @@ export function writeUserData(
     update(ref(db, "users/" + data.id), data);
     return;
   }
-  // const userId = v4();
   set(ref(db, "users/" + id), { ...data, status: "active", id });
+}
+export function writeProductData(
+  data: FormProductValuesProps,
+  id: string,
+  isEditing?: boolean
+) {
+  console.log({ dataFromfunction: data });
+  const db = getDatabase();
+  if (isEditing) {
+    update(ref(db, "products/" + data.id), data);
+    return;
+  }
+  set(ref(db, "products/" + id), { ...data, createdAt: new Date().getTime() });
 }
 
 export const deleteUser = (id: string) => {
   remove(ref(db, "users/" + id));
 };
+
+export function uploadInvoice(data: Invoice, id: string, date: number) {
+  console.log({ dataFromfunction: data });
+  const db = getDatabase();
+  const invoiceId = v4();
+
+  set(ref(db, "invoices/" + id), {
+    ...data,
+    createdAt: new Date().getTime(),
+  });
+}

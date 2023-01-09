@@ -1,72 +1,80 @@
-import * as Yup from 'yup';
+import * as Yup from "yup";
 // form
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 // @mui
-import { Grid, Button } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
+import { Grid, Button } from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 // @types
-import { CardOption, PaymentOption, DeliveryOption } from '../../../../@types/product';
+import {
+  CardOption,
+  PaymentOption,
+  DeliveryOption,
+} from "../../../../@types/product";
 // redux
-import { useDispatch, useSelector } from '../../../../redux/store';
+import { useDispatch, useSelector } from "../../../../redux/store";
 import {
   onGotoStep,
   onBackStep,
   onNextStep,
   applyShipping,
-} from '../../../../redux/slices/product';
+} from "../../../../redux/slices/product";
 // components
-import Iconify from '../../../../components/Iconify';
-import { FormProvider } from '../../../../components/hook-form';
+import Iconify from "../../../../components/Iconify";
+import { FormProvider } from "../../../../components/hook-form";
 //
-import CheckoutSummary from './CheckoutSummary';
-import CheckoutDelivery from './CheckoutDelivery';
-import CheckoutBillingInfo from './CheckoutBillingInfo';
-import CheckoutPaymentMethods from './CheckoutPaymentMethods';
+import CheckoutSummary from "./CheckoutSummary";
+import CheckoutDelivery from "./CheckoutDelivery";
+import CheckoutBillingInfo from "./CheckoutBillingInfo";
+import CheckoutPaymentMethods from "./CheckoutPaymentMethods";
+import { uploadInvoice } from "src/utils/firebase";
 
 // ----------------------------------------------------------------------
 
 const DELIVERY_OPTIONS: DeliveryOption[] = [
   {
     value: 0,
-    title: 'Standard delivery (Free)',
-    description: 'Delivered on Monday, August 12',
+    title: "Standard delivery (Free)",
+    description: "Delivered on Monday, August 12",
   },
   {
     value: 2,
-    title: 'Fast delivery ($2,00)',
-    description: 'Delivered on Monday, August 5',
+    title: "Fast delivery ($2,00)",
+    description: "Delivered on Monday, August 5",
   },
 ];
 
 const PAYMENT_OPTIONS: PaymentOption[] = [
   {
-    value: 'paypal',
-    title: 'Pay with Paypal',
-    description: 'You will be redirected to PayPal website to complete your purchase securely.',
-    icons: ['https://minimal-assets-api-dev.vercel.app/assets/icons/ic_paypal.svg'],
-  },
-  {
-    value: 'credit_card',
-    title: 'Credit / Debit Card',
-    description: 'We support Mastercard, Visa, Discover and Stripe.',
+    value: "paypal",
+    title: "Pay with Paypal",
+    description:
+      "You will be redirected to PayPal website to complete your purchase securely.",
     icons: [
-      'https://minimal-assets-api-dev.vercel.app/assets/icons/ic_mastercard.svg',
-      'https://minimal-assets-api-dev.vercel.app/assets/icons/ic_visa.svg',
+      "https://minimal-assets-api-dev.vercel.app/assets/icons/ic_paypal.svg",
     ],
   },
   {
-    value: 'cash',
-    title: 'Cash on CheckoutDelivery',
-    description: 'Pay with cash when your order is delivered.',
+    value: "credit_card",
+    title: "Credit / Debit Card",
+    description: "We support Mastercard, Visa, Discover and Stripe.",
+    icons: [
+      "https://minimal-assets-api-dev.vercel.app/assets/icons/ic_mastercard.svg",
+      "https://minimal-assets-api-dev.vercel.app/assets/icons/ic_visa.svg",
+    ],
+  },
+  {
+    value: "cash",
+    title: "Cash on CheckoutDelivery",
+    description: "Pay with cash when your order is delivered.",
     icons: [],
   },
 ];
 
 const CARDS_OPTIONS: CardOption[] = [
-  { value: 'ViSa1', label: '**** **** **** 1212 - Jimmy Holland' },
-  { value: 'ViSa2', label: '**** **** **** 2424 - Shawn Stokes' },
-  { value: 'MasterCard', label: '**** **** **** 4545 - Cole Armstrong' },
+  { value: "ViSa1", label: "**** **** **** 1212 - Jimmy Holland" },
+  { value: "ViSa2", label: "**** **** **** 2424 - Shawn Stokes" },
+  { value: "MasterCard", label: "**** **** **** 4545 - Cole Armstrong" },
 ];
 
 type FormValuesProps = {
@@ -79,7 +87,17 @@ export default function CheckoutPayment() {
 
   const { checkout } = useSelector((state) => state.product);
 
-  const { total, discount, subtotal, shipping } = checkout;
+  // const { total, discount, subtotal, shipping } = checkout;
+  const {
+    total,
+    discount,
+    subtotal,
+    shipping,
+    cart,
+    billing,
+    invoiceId,
+    invoiceDate,
+  } = checkout;
 
   const handleNextStep = () => {
     dispatch(onNextStep());
@@ -98,12 +116,12 @@ export default function CheckoutPayment() {
   };
 
   const PaymentSchema = Yup.object().shape({
-    payment: Yup.string().required('Payment is required!'),
+    payment: Yup.string().required("Payment is required!"),
   });
 
   const defaultValues = {
     delivery: shipping,
-    payment: '',
+    payment: "",
   };
 
   const methods = useForm<FormValuesProps>({
@@ -119,6 +137,8 @@ export default function CheckoutPayment() {
   const onSubmit = async () => {
     try {
       handleNextStep();
+      uploadInvoice({ cart, total, billing }, invoiceId!, invoiceDate!);
+      console.log({ cart, billing, total });
     } catch (error) {
       console.error(error);
     }
@@ -132,12 +152,15 @@ export default function CheckoutPayment() {
             onApplyShipping={handleApplyShipping}
             deliveryOptions={DELIVERY_OPTIONS}
           />
-          <CheckoutPaymentMethods cardOptions={CARDS_OPTIONS} paymentOptions={PAYMENT_OPTIONS} />
+          <CheckoutPaymentMethods
+            cardOptions={CARDS_OPTIONS}
+            paymentOptions={PAYMENT_OPTIONS}
+          />
           <Button
             size="small"
             color="inherit"
             onClick={handleBackStep}
-            startIcon={<Iconify icon={'eva:arrow-ios-back-fill'} />}
+            startIcon={<Iconify icon={"eva:arrow-ios-back-fill"} />}
           >
             Back
           </Button>

@@ -1,5 +1,5 @@
 import * as Yup from "yup";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useSnackbar } from "notistack";
 //firebase
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
@@ -130,18 +130,14 @@ export default function UserNewEditForm({
       (error) => {
         switch (error.code) {
           case "storage/unauthorized":
-            // User doesn't have permission to access the object
             break;
           case "storage/canceled":
-            // User canceled the upload
             break;
           case "storage/unknown":
-            // Unknown error occurred, inspect error.serverResponse
             break;
         }
       },
       () => {
-        // Upload completed successfully, now we can get the download URL
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setValue("avatarUrl", downloadURL);
 
@@ -173,7 +169,7 @@ export default function UserNewEditForm({
               ...data,
               id: currentUser!.id,
             },
-            // { ...data, status: currentUser ? currentUser!.status : "null" },
+
             (isEdit = true),
             currentUser!.id
           )

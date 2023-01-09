@@ -1,27 +1,36 @@
-import { sentenceCase } from 'change-case';
+import { sentenceCase } from "change-case";
 // next
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
 // form
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm } from "react-hook-form";
 // @mui
-import { useTheme, styled } from '@mui/material/styles';
-import { Box, Link, Stack, Button, Rating, Divider, IconButton, Typography } from '@mui/material';
+import { useTheme, styled } from "@mui/material/styles";
+import {
+  Box,
+  Link,
+  Stack,
+  Button,
+  Rating,
+  Divider,
+  IconButton,
+  Typography,
+} from "@mui/material";
 // routes
-import { PATH_DASHBOARD } from '../../../../routes/paths';
+import { PATH_DASHBOARD } from "../../../../routes/paths";
 // utils
-import { fShortenNumber, fCurrency } from '../../../../utils/formatNumber';
+import { fShortenNumber, fCurrency } from "../../../../utils/formatNumber";
 // @types
-import { Product, CartItem } from '../../../../@types/product';
+import { Product, CartItem } from "../../../../@types/product";
 // components
-import Label from '../../../../components/Label';
-import Iconify from '../../../../components/Iconify';
-import SocialsButton from '../../../../components/SocialsButton';
-import { ColorSinglePicker } from '../../../../components/color-utils';
-import { FormProvider, RHFSelect } from '../../../../components/hook-form';
+import Label from "../../../../components/Label";
+import Iconify from "../../../../components/Iconify";
+import SocialsButton from "../../../../components/SocialsButton";
+import { ColorSinglePicker } from "../../../../components/color-utils";
+import { FormProvider, RHFSelect } from "../../../../components/hook-form";
 
 // ----------------------------------------------------------------------
 
-const RootStyle = styled('div')(({ theme }) => ({
+const RootStyle = styled("div")(({ theme }) => ({
   padding: theme.spacing(3),
   [theme.breakpoints.up(1368)]: {
     padding: theme.spacing(5, 8),
@@ -68,7 +77,8 @@ export default function ProductDetailsSummary({
   const alreadyProduct = cart.map((item) => item.id).includes(id);
 
   const isMaxQuantity =
-    cart.filter((item) => item.id === id).map((item) => item.quantity)[0] >= available;
+    cart.filter((item) => item.id === id).map((item) => item.quantity)[0] >=
+    available;
 
   const defaultValues = {
     id,
@@ -91,6 +101,7 @@ export default function ProductDetailsSummary({
 
   const onSubmit = async (data: FormValuesProps) => {
     try {
+      console.log({ dataFromSubmit: data });
       if (!alreadyProduct) {
         onAddCart({
           ...data,
@@ -106,6 +117,8 @@ export default function ProductDetailsSummary({
 
   const handleAddCart = async () => {
     try {
+      console.log({ ...values });
+
       onAddCart({
         ...values,
         subtotal: values.price * values.quantity,
@@ -119,11 +132,11 @@ export default function ProductDetailsSummary({
     <RootStyle {...other}>
       <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
         <Label
-          variant={theme.palette.mode === 'light' ? 'ghost' : 'filled'}
-          color={inventoryType === 'in_stock' ? 'success' : 'error'}
-          sx={{ textTransform: 'uppercase' }}
+          variant={theme.palette.mode === "light" ? "ghost" : "filled"}
+          color={inventoryType === "in_stock" ? "success" : "error"}
+          sx={{ textTransform: "uppercase" }}
         >
-          {sentenceCase(inventoryType || '')}
+          {sentenceCase(inventoryType || "")}
         </Label>
 
         <Typography
@@ -131,8 +144,8 @@ export default function ProductDetailsSummary({
           sx={{
             mt: 2,
             mb: 1,
-            display: 'block',
-            color: status === 'sale' ? 'error.main' : 'info.main',
+            display: "block",
+            color: status === "sale" ? "error.main" : "info.main",
           }}
         >
           {status}
@@ -144,22 +157,30 @@ export default function ProductDetailsSummary({
 
         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
           <Rating value={totalRating} precision={0.1} readOnly />
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          <Typography variant="body2" sx={{ color: "text.secondary" }}>
             ({fShortenNumber(totalReview)}
             reviews)
           </Typography>
         </Stack>
 
         <Typography variant="h4" sx={{ mb: 3 }}>
-          <Box component="span" sx={{ color: 'text.disabled', textDecoration: 'line-through' }}>
+          <Box
+            component="span"
+            sx={{ color: "text.disabled", textDecoration: "line-through" }}
+          >
             {priceSale && fCurrency(priceSale)}
           </Box>
           &nbsp;{fCurrency(price)}
         </Typography>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+        <Divider sx={{ borderStyle: "dashed" }} />
 
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ my: 3 }}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          sx={{ my: 3 }}
+        >
           <Typography variant="subtitle1" sx={{ mt: 0.5 }}>
             Color
           </Typography>
@@ -175,7 +196,7 @@ export default function ProductDetailsSummary({
                 sx={{
                   ...(colors.length > 4 && {
                     maxWidth: 144,
-                    justifyContent: 'flex-end',
+                    justifyContent: "flex-end",
                   }),
                 }}
               />
@@ -193,7 +214,7 @@ export default function ProductDetailsSummary({
             size="small"
             fullWidth={false}
             FormHelperTextProps={{
-              sx: { textAlign: 'right', margin: 0, mt: 1 },
+              sx: { textAlign: "right", margin: 0, mt: 1 },
             }}
             helperText={
               <Link underline="always" color="text.secondary">
@@ -219,20 +240,24 @@ export default function ProductDetailsSummary({
               name="quantity"
               quantity={values.quantity}
               available={available}
-              onIncrementQuantity={() => setValue('quantity', values.quantity + 1)}
-              onDecrementQuantity={() => setValue('quantity', values.quantity - 1)}
+              onIncrementQuantity={() =>
+                setValue("quantity", values.quantity + 1)
+              }
+              onDecrementQuantity={() =>
+                setValue("quantity", values.quantity - 1)
+              }
             />
             <Typography
               variant="caption"
               component="div"
-              sx={{ mt: 1, textAlign: 'right', color: 'text.secondary' }}
+              sx={{ mt: 1, textAlign: "right", color: "text.secondary" }}
             >
               Available: {available}
             </Typography>
           </div>
         </Stack>
 
-        <Divider sx={{ borderStyle: 'dashed' }} />
+        <Divider sx={{ borderStyle: "dashed" }} />
 
         <Stack direction="row" spacing={2} sx={{ mt: 5 }}>
           <Button
@@ -241,9 +266,9 @@ export default function ProductDetailsSummary({
             size="large"
             color="warning"
             variant="contained"
-            startIcon={<Iconify icon={'ic:round-add-shopping-cart'} />}
+            startIcon={<Iconify icon={"ic:round-add-shopping-cart"} />}
             onClick={handleAddCart}
-            sx={{ whiteSpace: 'nowrap' }}
+            sx={{ whiteSpace: "nowrap" }}
           >
             Add to Cart
           </Button>
@@ -285,9 +310,9 @@ function Incrementer({
         border: 1,
         lineHeight: 0,
         borderRadius: 1,
-        display: 'flex',
-        alignItems: 'center',
-        borderColor: 'grey.50032',
+        display: "flex",
+        alignItems: "center",
+        borderColor: "grey.50032",
       }}
     >
       <IconButton
@@ -296,10 +321,14 @@ function Incrementer({
         disabled={quantity <= 1}
         onClick={onDecrementQuantity}
       >
-        <Iconify icon={'eva:minus-fill'} width={14} height={14} />
+        <Iconify icon={"eva:minus-fill"} width={14} height={14} />
       </IconButton>
 
-      <Typography variant="body2" component="span" sx={{ width: 40, textAlign: 'center' }}>
+      <Typography
+        variant="body2"
+        component="span"
+        sx={{ width: 40, textAlign: "center" }}
+      >
         {quantity}
       </Typography>
 
@@ -309,7 +338,7 @@ function Incrementer({
         disabled={quantity >= available}
         onClick={onIncrementQuantity}
       >
-        <Iconify icon={'eva:plus-fill'} width={14} height={14} />
+        <Iconify icon={"eva:plus-fill"} width={14} height={14} />
       </IconButton>
     </Box>
   );

@@ -1,63 +1,75 @@
-import { sentenceCase } from 'change-case';
-import { useEffect, useState } from 'react';
+import { sentenceCase } from "change-case";
+import { useEffect, useState } from "react";
 // next
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
 // @mui
-import { alpha, styled } from '@mui/material/styles';
-import { Box, Tab, Card, Grid, Divider, Container, Typography } from '@mui/material';
-import { TabContext, TabList, TabPanel } from '@mui/lab';
+import { alpha, styled } from "@mui/material/styles";
+import {
+  Box,
+  Tab,
+  Card,
+  Grid,
+  Divider,
+  Container,
+  Typography,
+} from "@mui/material";
+import { TabContext, TabList, TabPanel } from "@mui/lab";
 // redux
-import { useDispatch, useSelector } from '../../../../redux/store';
-import { getProduct, addCart, onGotoStep } from '../../../../redux/slices/product';
+import { useDispatch, useSelector } from "../../../../redux/store";
+import {
+  getProduct,
+  addCart,
+  onGotoStep,
+} from "../../../../redux/slices/product";
 // routes
-import { PATH_DASHBOARD } from '../../../../routes/paths';
+import { PATH_DASHBOARD } from "../../../../routes/paths";
 // @types
-import { CartItem } from '../../../../@types/product';
+import { CartItem } from "../../../../@types/product";
 // hooks
-import useSettings from '../../../../hooks/useSettings';
+import useSettings from "../../../../hooks/useSettings";
 // layouts
-import Layout from '../../../../layouts';
+import Layout from "../../../../layouts";
 // components
-import Page from '../../../../components/Page';
-import Iconify from '../../../../components/Iconify';
-import Markdown from '../../../../components/Markdown';
-import { SkeletonProduct } from '../../../../components/skeleton';
-import HeaderBreadcrumbs from '../../../../components/HeaderBreadcrumbs';
+import Page from "../../../../components/Page";
+import Iconify from "../../../../components/Iconify";
+import Markdown from "../../../../components/Markdown";
+import { SkeletonProduct } from "../../../../components/skeleton";
+import HeaderBreadcrumbs from "../../../../components/HeaderBreadcrumbs";
 // sections
 import {
   ProductDetailsSummary,
   ProductDetailsReview,
   ProductDetailsCarousel,
-} from '../../../../sections/@dashboard/e-commerce/product-details';
-import CartWidget from '../../../../sections/@dashboard/e-commerce/CartWidget';
+} from "../../../../sections/@dashboard/e-commerce/product-details";
+import CartWidget from "../../../../sections/@dashboard/e-commerce/CartWidget";
 
 // ----------------------------------------------------------------------
 
 const PRODUCT_DESCRIPTION = [
   {
-    title: '100% Original',
-    description: 'Chocolate bar candy canes ice cream toffee cookie halvah.',
-    icon: 'ic:round-verified',
+    title: "100% Original",
+    description: "Chocolate bar candy canes ice cream toffee cookie halvah.",
+    icon: "ic:round-verified",
   },
   {
-    title: '10 Day Replacement',
-    description: 'Marshmallow biscuit donut dragée fruitcake wafer.',
-    icon: 'eva:clock-fill',
+    title: "10 Day Replacement",
+    description: "Marshmallow biscuit donut dragée fruitcake wafer.",
+    icon: "eva:clock-fill",
   },
   {
-    title: 'Year Warranty',
-    description: 'Cotton candy gingerbread cake I love sugar sweet.',
-    icon: 'ic:round-verified-user',
+    title: "Year Warranty",
+    description: "Cotton candy gingerbread cake I love sugar sweet.",
+    icon: "ic:round-verified-user",
   },
 ];
 
-const IconWrapperStyle = styled('div')(({ theme }) => ({
-  margin: 'auto',
-  display: 'flex',
-  borderRadius: '50%',
-  alignItems: 'center',
+const IconWrapperStyle = styled("div")(({ theme }) => ({
+  margin: "auto",
+  display: "flex",
+  borderRadius: "50%",
+  alignItems: "center",
   width: theme.spacing(8),
-  justifyContent: 'center',
+  justifyContent: "center",
   height: theme.spacing(8),
   marginBottom: theme.spacing(3),
   color: theme.palette.primary.main,
@@ -66,7 +78,9 @@ const IconWrapperStyle = styled('div')(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-EcommerceProductDetails.getLayout = function getLayout(page: React.ReactElement) {
+EcommerceProductDetails.getLayout = function getLayout(
+  page: React.ReactElement
+) {
   return <Layout>{page}</Layout>;
 };
 
@@ -77,7 +91,7 @@ export default function EcommerceProductDetails() {
 
   const dispatch = useDispatch();
 
-  const [value, setValue] = useState('1');
+  const [value, setValue] = useState("1");
 
   const { query } = useRouter();
 
@@ -88,6 +102,7 @@ export default function EcommerceProductDetails() {
   useEffect(() => {
     dispatch(getProduct(name as string));
   }, [dispatch, name]);
+  console.log({ product });
 
   const handleAddCart = (product: CartItem) => {
     dispatch(addCart(product));
@@ -99,17 +114,17 @@ export default function EcommerceProductDetails() {
 
   return (
     <Page title="Ecommerce: Product Details">
-      <Container maxWidth={themeStretch ? false : 'lg'}>
+      <Container maxWidth={themeStretch ? false : "lg"}>
         <HeaderBreadcrumbs
           heading="Product Details"
           links={[
-            { name: 'Dashboard', href: PATH_DASHBOARD.root },
+            { name: "Dashboard", href: PATH_DASHBOARD.root },
             {
-              name: 'E-Commerce',
+              name: "E-Commerce",
               href: PATH_DASHBOARD.eCommerce.root,
             },
             {
-              name: 'Shop',
+              name: "Shop",
               href: PATH_DASHBOARD.eCommerce.shop,
             },
             { name: sentenceCase(name as string) },
@@ -139,14 +154,23 @@ export default function EcommerceProductDetails() {
             <Grid container sx={{ my: 8 }}>
               {PRODUCT_DESCRIPTION.map((item) => (
                 <Grid item xs={12} md={4} key={item.title}>
-                  <Box sx={{ my: 2, mx: 'auto', maxWidth: 280, textAlign: 'center' }}>
+                  <Box
+                    sx={{
+                      my: 2,
+                      mx: "auto",
+                      maxWidth: 280,
+                      textAlign: "center",
+                    }}
+                  >
                     <IconWrapperStyle>
                       <Iconify icon={item.icon} width={36} height={36} />
                     </IconWrapperStyle>
                     <Typography variant="subtitle1" gutterBottom>
                       {item.title}
                     </Typography>
-                    <Typography sx={{ color: 'text.secondary' }}>{item.description}</Typography>
+                    <Typography sx={{ color: "text.secondary" }}>
+                      {item.description}
+                    </Typography>
                   </Box>
                 </Grid>
               ))}
@@ -154,14 +178,14 @@ export default function EcommerceProductDetails() {
 
             <Card>
               <TabContext value={value}>
-                <Box sx={{ px: 3, bgcolor: 'background.neutral' }}>
+                <Box sx={{ px: 3, bgcolor: "background.neutral" }}>
                   <TabList onChange={(e, value) => setValue(value)}>
                     <Tab disableRipple value="1" label="Description" />
                     <Tab
                       disableRipple
                       value="2"
                       label={`Review (${product.reviews.length})`}
-                      sx={{ '& .MuiTab-wrapper': { whiteSpace: 'nowrap' } }}
+                      sx={{ "& .MuiTab-wrapper": { whiteSpace: "nowrap" } }}
                     />
                   </TabList>
                 </Box>

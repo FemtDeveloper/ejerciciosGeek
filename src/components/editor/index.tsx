@@ -1,13 +1,13 @@
-import { ReactNode } from 'react';
-import { ReactQuillProps } from 'react-quill';
+import { ReactNode } from "react";
+import { ReactQuillProps } from "react-quill";
 // next
-import dynamic from 'next/dynamic';
+import dynamic from "next/dynamic";
 // @mui
-import { styled } from '@mui/material/styles';
-import { Box, BoxProps } from '@mui/material';
+import { styled } from "@mui/material/styles";
+import { Box, BoxProps } from "@mui/material";
 //
-import EditorToolbar, { formats } from './EditorToolbar';
-const ReactQuill = dynamic(() => import('react-quill'), {
+import EditorToolbar, { formats } from "./EditorToolbar";
+const ReactQuill = dynamic(() => import("react-quill"), {
   ssr: false,
   loading: () => (
     <Box
@@ -16,8 +16,8 @@ const ReactQuill = dynamic(() => import('react-quill'), {
         left: 0,
         right: 0,
         bottom: 0,
-        position: 'absolute',
-        bgcolor: 'background.paper',
+        position: "absolute",
+        bgcolor: "background.paper",
       }}
     >
       Loading...
@@ -28,23 +28,23 @@ const ReactQuill = dynamic(() => import('react-quill'), {
 // ----------------------------------------------------------------------
 
 const RootStyle = styled(Box)(({ theme }) => ({
-  overflow: 'hidden',
-  position: 'relative',
+  overflow: "hidden",
+  position: "relative",
   borderRadius: theme.shape.borderRadius,
   border: `solid 1px ${theme.palette.grey[500_32]}`,
-  '& .ql-container.ql-snow': {
-    borderColor: 'transparent',
+  "& .ql-container.ql-snow": {
+    borderColor: "transparent",
     ...theme.typography.body1,
     fontFamily: theme.typography.fontFamily,
   },
-  '& .ql-editor': {
+  "& .ql-editor": {
     minHeight: 200,
     maxHeight: 640,
-    '&.ql-blank::before': {
-      fontStyle: 'normal',
+    "&.ql-blank::before": {
+      fontStyle: "normal",
       color: theme.palette.text.disabled,
     },
-    '& pre.ql-syntax': {
+    "& pre.ql-syntax": {
       ...theme.typography.body2,
       padding: theme.spacing(2),
       borderRadius: theme.shape.borderRadius,
@@ -64,7 +64,7 @@ export interface Props extends ReactQuillProps {
 }
 
 export default function Editor({
-  id = 'minimal-quill',
+  id = "minimal-quill",
   error,
   value,
   onChange,

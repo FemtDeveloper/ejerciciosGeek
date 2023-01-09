@@ -1,14 +1,14 @@
 // ----------------------------------------------------------------------
 
-export type PaymentType = 'paypal' | 'credit_card' | 'cash';
+export type PaymentType = "paypal" | "credit_card" | "cash";
 
-export type ProductStatus = 'sale' | 'new' | '';
+export type ProductStatus = "sale" | "new" | "";
 
-export type ProductInventoryType = 'in_stock' | 'out_of_stock' | 'low_stock';
+export type ProductInventoryType = "in_stock" | "out_of_stock" | "low_stock";
 
-export type ProductCategory = 'Accessories' | 'Apparel' | 'Shoes' | string;
+export type ProductCategory = "Accessories" | "Apparel" | "Shoes" | string;
 
-export type ProductGender = 'Men' | 'Women' | 'Kids' | string;
+export type ProductGender = "Men" | "Women" | "Kids" | string;
 
 export type OnCreateBilling = (address: BillingAddress) => void;
 
@@ -96,6 +96,9 @@ export type ProductState = {
     discount: number;
     shipping: number;
     billing: BillingAddress | null;
+    // --------------------------------------------
+    invoiceId?: string | null;
+    invoiceDate?: number | null;
   };
 };
 
@@ -123,4 +126,12 @@ export type PaymentOption = {
 export type CardOption = {
   value: string;
   label: string;
+};
+
+// -------------------------------------------
+
+export type Invoice = {
+  billing: BillingAddress | null;
+  cart: CartItem[];
+  total: number;
 };

@@ -1,7 +1,7 @@
 // form
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext } from "react-hook-form";
 // @mui
-import { styled } from '@mui/material/styles';
+import { styled } from "@mui/material/styles";
 import {
   Box,
   Card,
@@ -16,23 +16,23 @@ import {
   CardContent,
   FormHelperText,
   FormControlLabel,
-} from '@mui/material';
+} from "@mui/material";
 // hooks
-import useResponsive from '../../../../hooks/useResponsive';
+import useResponsive from "../../../../hooks/useResponsive";
 // @types
-import { CardOption, PaymentOption } from '../../../../@types/product';
+import { CardOption, PaymentOption } from "../../../../@types/product";
 // components
-import Image from '../../../../components/Image';
-import Iconify from '../../../../components/Iconify';
+import Image from "../../../../components/Image";
+import Iconify from "../../../../components/Iconify";
 
 // ----------------------------------------------------------------------
 
-const OptionStyle = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
+const OptionStyle = styled("div")(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
   padding: theme.spacing(0, 2.5),
-  justifyContent: 'space-between',
-  transition: theme.transitions.create('all'),
+  justifyContent: "space-between",
+  transition: theme.transitions.create("all"),
   border: `solid 1px ${theme.palette.divider}`,
   borderRadius: Number(theme.shape.borderRadius) * 1.5,
 }));
@@ -44,10 +44,13 @@ type Props = {
   cardOptions: CardOption[];
 };
 
-export default function CheckoutPaymentMethods({ paymentOptions, cardOptions }: Props) {
+export default function CheckoutPaymentMethods({
+  paymentOptions,
+  cardOptions,
+}: Props) {
   const { control } = useFormContext();
 
-  const isDesktop = useResponsive('up', 'sm');
+  const isDesktop = useResponsive("up", "sm");
 
   return (
     <Card sx={{ my: 3 }}>
@@ -63,7 +66,7 @@ export default function CheckoutPaymentMethods({ paymentOptions, cardOptions }: 
                   {paymentOptions.map((method) => {
                     const { value, title, icons, description } = method;
 
-                    const hasChildren = value === 'credit_card';
+                    const hasChildren = value === "credit_card";
 
                     const selected = field.value === value;
 
@@ -74,18 +77,27 @@ export default function CheckoutPaymentMethods({ paymentOptions, cardOptions }: 
                           ...(selected && {
                             boxShadow: (theme) => theme.customShadows.z20,
                           }),
-                          ...(hasChildren && { flexWrap: 'wrap' }),
+                          ...(hasChildren && { flexWrap: "wrap" }),
                         }}
                       >
                         <FormControlLabel
                           value={value}
                           control={
-                            <Radio checkedIcon={<Iconify icon={'eva:checkmark-circle-2-fill'} />} />
+                            <Radio
+                              checkedIcon={
+                                <Iconify icon={"eva:checkmark-circle-2-fill"} />
+                              }
+                            />
                           }
                           label={
                             <Box sx={{ ml: 1 }}>
-                              <Typography variant="subtitle2">{title}</Typography>
-                              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                              <Typography variant="subtitle2">
+                                {title}
+                              </Typography>
+                              <Typography
+                                variant="body2"
+                                sx={{ color: "text.secondary" }}
+                              >
                                 {description}
                               </Typography>
                             </Box>
@@ -102,7 +114,10 @@ export default function CheckoutPaymentMethods({ paymentOptions, cardOptions }: 
                         )}
 
                         {hasChildren && (
-                          <Collapse in={field.value === 'credit_card'} sx={{ width: 1 }}>
+                          <Collapse
+                            in={field.value === "credit_card"}
+                            sx={{ width: 1 }}
+                          >
                             <TextField
                               select
                               fullWidth
@@ -118,7 +133,13 @@ export default function CheckoutPaymentMethods({ paymentOptions, cardOptions }: 
 
                             <Button
                               size="small"
-                              startIcon={<Iconify icon={'eva:plus-fill'} width={20} height={20} />}
+                              startIcon={
+                                <Iconify
+                                  icon={"eva:plus-fill"}
+                                  width={20}
+                                  height={20}
+                                />
+                              }
                               sx={{ my: 3 }}
                             >
                               Add new card

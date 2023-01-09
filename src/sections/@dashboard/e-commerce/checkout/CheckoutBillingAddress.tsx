@@ -1,19 +1,26 @@
-import { useState } from 'react';
+import { useState } from "react";
 // @mui
-import { Box, Grid, Card, Button, Typography } from '@mui/material';
+import { Box, Grid, Card, Button, Typography } from "@mui/material";
 // @types
-import { BillingAddress as Address, OnCreateBilling } from '../../../../@types/product';
+import {
+  BillingAddress as Address,
+  OnCreateBilling,
+} from "../../../../@types/product";
 // redux
-import { useDispatch, useSelector } from '../../../../redux/store';
-import { onBackStep, onNextStep, createBilling } from '../../../../redux/slices/product';
+import { useDispatch, useSelector } from "../../../../redux/store";
+import {
+  onBackStep,
+  onNextStep,
+  createBilling,
+} from "../../../../redux/slices/product";
 // _mock_
-import { _addressBooks } from '../../../../_mock';
+import { _addressBooks } from "../../../../_mock";
 // components
-import Label from '../../../../components/Label';
-import Iconify from '../../../../components/Iconify';
+import Label from "../../../../components/Label";
+import Iconify from "../../../../components/Iconify";
 //
-import CheckoutSummary from './CheckoutSummary';
-import CheckoutNewAddressForm from './CheckoutNewAddressForm';
+import CheckoutSummary from "./CheckoutSummary";
+import CheckoutNewAddressForm from "./CheckoutNewAddressForm";
 
 // ----------------------------------------------------------------------
 
@@ -43,6 +50,7 @@ export default function CheckoutBillingAddress() {
   };
 
   const handleCreateBilling = (value: Address) => {
+    console.log({ value });
     dispatch(createBilling(value));
   };
 
@@ -58,19 +66,19 @@ export default function CheckoutBillingAddress() {
               onCreateBilling={handleCreateBilling}
             />
           ))}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
             <Button
               size="small"
               color="inherit"
               onClick={handleBackStep}
-              startIcon={<Iconify icon={'eva:arrow-ios-back-fill'} />}
+              startIcon={<Iconify icon={"eva:arrow-ios-back-fill"} />}
             >
               Back
             </Button>
             <Button
               size="small"
               onClick={handleClickOpen}
-              startIcon={<Iconify icon={'eva:plus-fill'} />}
+              startIcon={<Iconify icon={"eva:plus-fill"} />}
             >
               Add new address
             </Button>
@@ -78,7 +86,11 @@ export default function CheckoutBillingAddress() {
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <CheckoutSummary subtotal={subtotal} total={total} discount={discount} />
+          <CheckoutSummary
+            subtotal={subtotal}
+            total={total}
+            discount={discount}
+          />
         </Grid>
       </Grid>
 
@@ -100,7 +112,11 @@ type AddressItemProps = {
   onCreateBilling: OnCreateBilling;
 };
 
-function AddressItem({ address, onNextStep, onCreateBilling }: AddressItemProps) {
+function AddressItem({
+  address,
+  onNextStep,
+  onCreateBilling,
+}: AddressItemProps) {
   const { receiver, fullAddress, addressType, phone, isDefault } = address;
 
   const handleCreateBilling = () => {
@@ -109,11 +125,11 @@ function AddressItem({ address, onNextStep, onCreateBilling }: AddressItemProps)
   };
 
   return (
-    <Card sx={{ p: 3, mb: 3, position: 'relative' }}>
-      <Box sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
+    <Card sx={{ p: 3, mb: 3, position: "relative" }}>
+      <Box sx={{ mb: 1, display: "flex", alignItems: "center" }}>
         <Typography variant="subtitle1">{receiver}</Typography>
 
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+        <Typography variant="body2" sx={{ color: "text.secondary" }}>
           &nbsp;({addressType})
         </Typography>
 
@@ -128,15 +144,15 @@ function AddressItem({ address, onNextStep, onCreateBilling }: AddressItemProps)
         {fullAddress}
       </Typography>
 
-      <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+      <Typography variant="body2" sx={{ color: "text.secondary" }}>
         {phone}
       </Typography>
 
       <Box
         sx={{
           mt: 3,
-          display: 'flex',
-          position: { sm: 'absolute' },
+          display: "flex",
+          position: { sm: "absolute" },
           right: { sm: 24 },
           bottom: { sm: 24 },
         }}

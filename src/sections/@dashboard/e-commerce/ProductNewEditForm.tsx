@@ -1,14 +1,15 @@
-import * as Yup from 'yup';
-import { useSnackbar } from 'notistack';
-import { useCallback, useEffect, useMemo } from 'react';
+import * as Yup from "yup";
+import { useSnackbar } from "notistack";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { v4 } from "uuid";
 // next
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
 // form
-import { useForm, Controller } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 // @mui
-import { styled } from '@mui/material/styles';
-import { LoadingButton } from '@mui/lab';
+import { styled } from "@mui/material/styles";
+import { LoadingButton } from "@mui/lab";
 import {
   Card,
   Chip,
@@ -18,13 +19,13 @@ import {
   Typography,
   Autocomplete,
   InputAdornment,
-} from '@mui/material';
+} from "@mui/material";
 // routes
-import { PATH_DASHBOARD } from '../../../routes/paths';
+import { PATH_DASHBOARD } from "../../../routes/paths";
 // @types
-import { Product } from '../../../@types/product';
+import { Product } from "../../../@types/product";
 // components
-import { CustomFile } from '../../../components/upload';
+import { CustomFile } from "../../../components/upload";
 import {
   FormProvider,
   RHFSwitch,
@@ -33,36 +34,44 @@ import {
   RHFTextField,
   RHFRadioGroup,
   RHFUploadMultiFile,
-} from '../../../components/hook-form';
+} from "../../../components/hook-form";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { storage, writeProductData } from "src/utils/firebase";
 
 // ----------------------------------------------------------------------
 
 const GENDER_OPTION = [
-  { label: 'Men', value: 'Men' },
-  { label: 'Women', value: 'Women' },
-  { label: 'Kids', value: 'Kids' },
+  { label: "Men", value: "Men" },
+  { label: "Women", value: "Women" },
+  { label: "Kids", value: "Kids" },
 ];
 
 const CATEGORY_OPTION = [
-  { group: 'Clothing', classify: ['Shirts', 'T-shirts', 'Jeans', 'Leather'] },
-  { group: 'Tailored', classify: ['Suits', 'Blazers', 'Trousers', 'Waistcoats'] },
-  { group: 'Accessories', classify: ['Shoes', 'Backpacks and bags', 'Bracelets', 'Face masks'] },
+  { group: "Clothing", classify: ["Shirts", "T-shirts", "Jeans", "Leather"] },
+  {
+    group: "Tailored",
+    classify: ["Suits", "Blazers", "Trousers", "Waistcoats"],
+  },
+  {
+    group: "Accessories",
+    classify: ["Shoes", "Backpacks and bags", "Bracelets", "Face masks"],
+  },
 ];
 
 const TAGS_OPTION = [
-  'Toy Story 3',
-  'Logan',
-  'Full Metal Jacket',
-  'Dangal',
-  'The Sting',
-  '2001: A Space Odyssey',
+  "Toy Story 3",
+  "Logan",
+  "Full Metal Jacket",
+  "Dangal",
+  "The Sting",
+  "2001: A Space Odyssey",
   "Singin' in the Rain",
-  'Toy Story',
-  'Bicycle Thieves',
-  'The Kid',
-  'Inglourious Basterds',
-  'Snatch',
-  '3 Idiots',
+  "Toy Story",
+  "Bicycle Thieves",
+  "The Kid",
+  "Inglourious Basterds",
+  "Snatch",
+  "3 Idiots",
 ];
 
 const LabelStyle = styled(Typography)(({ theme }) => ({
@@ -73,7 +82,7 @@ const LabelStyle = styled(Typography)(({ theme }) => ({
 
 // ----------------------------------------------------------------------
 
-interface FormValuesProps extends Omit<Product, 'images'> {
+export interface FormValuesProps extends Omit<Product, "images"> {
   taxes: boolean;
   inStock: boolean;
   images: (CustomFile | string)[];
@@ -87,22 +96,25 @@ type Props = {
 export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
   const { push } = useRouter();
 
+  const [myImages, setMyImages] = useState<File[]>([]);
+  const [urls, setUrls] = useState<string[]>([]);
+
   const { enqueueSnackbar } = useSnackbar();
 
   const NewProductSchema = Yup.object().shape({
-    name: Yup.string().required('Name is required'),
-    description: Yup.string().required('Description is required'),
-    images: Yup.array().min(1, 'Images is required'),
-    price: Yup.number().moreThan(0, 'Price should not be $0.00'),
+    name: Yup.string().required("Name is required"),
+    description: Yup.string().required("Description is required"),
+    images: Yup.array().min(1, "Images is required"),
+    price: Yup.number().moreThan(0, "Price should not be $0.00"),
   });
 
   const defaultValues = useMemo(
     () => ({
-      name: currentProduct?.name || '',
-      description: currentProduct?.description || '',
+      name: currentProduct?.name || "",
+      description: currentProduct?.description || "",
       images: currentProduct?.images || [],
-      code: currentProduct?.code || '',
-      sku: currentProduct?.sku || '',
+      code: currentProduct?.code || "",
+      sku: currentProduct?.sku || "",
       price: currentProduct?.price || 0,
       priceSale: currentProduct?.priceSale || 0,
       tags: currentProduct?.tags || [TAGS_OPTION[0]],
@@ -143,21 +155,64 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
   }, [isEdit, currentProduct]);
 
   const onSubmit = async (data: FormValuesProps) => {
+    console.log({ data });
+
+    const productId = v4();
+    writeProductData(
+      { ...data, id: productId, description: data.description.slice(3, -4) },
+      productId
+    );
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
       reset();
-      enqueueSnackbar(!isEdit ? 'Create success!' : 'Update success!');
+      enqueueSnackbar(!isEdit ? "Create success!" : "Update success!");
       push(PATH_DASHBOARD.eCommerce.list);
     } catch (error) {
       console.error(error);
     }
   };
 
+  const uploadImages = async (imagesToUpload: File[]) => {
+    console.log({ imagesToUpload });
+
+    if (imagesToUpload.length == null) {
+      return;
+    }
+
+    imagesToUpload.map((image) => {
+      const imageRef = ref(storage, `product-images/${image.name}`);
+
+      const uploadTask = uploadBytesResumable(imageRef, image);
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {},
+        (error) => {
+          switch (error.code) {
+            case "storage/unauthorized":
+              break;
+            case "storage/canceled":
+              break;
+            case "storage/unknown":
+              break;
+          }
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            setUrls((prev) => [...prev, downloadURL]);
+
+            console.log("File available at", downloadURL);
+          });
+        }
+      );
+    });
+  };
+
   const handleDrop = useCallback(
     (acceptedFiles: File[]) => {
+      uploadImages(acceptedFiles);
       const images = values.images || [];
+      console.log({ acceptedFiles });
 
-      setValue('images', [
+      setValue("images", [
         ...images,
         ...acceptedFiles.map((file) =>
           Object.assign(file, {
@@ -169,14 +224,19 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
     [setValue, values.images]
   );
 
+  useEffect(() => {
+    setValue("images", urls);
+  }, [urls]);
+
   const handleRemoveAll = () => {
-    setValue('images', []);
+    setValue("images", []);
   };
 
   const handleRemove = (file: File | string) => {
-    const filteredItems = values.images && values.images?.filter((_file) => _file !== file);
+    const filteredItems =
+      values.images && values.images?.filter((_file) => _file !== file);
 
-    setValue('images', filteredItems);
+    setValue("images", filteredItems);
   };
 
   return (
@@ -201,7 +261,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
                   onDrop={handleDrop}
                   onRemove={handleRemove}
                   onRemoveAll={handleRemoveAll}
-                  onUpload={() => console.log('ON UPLOAD')}
+                  onUpload={() => console.log("ON UPLOAD")}
                 />
               </div>
             </Stack>
@@ -224,7 +284,7 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
                     name="gender"
                     options={GENDER_OPTION}
                     sx={{
-                      '& .MuiFormControlLabel-root': { mr: 4 },
+                      "& .MuiFormControlLabel-root": { mr: 4 },
                     }}
                   />
                 </div>
@@ -261,7 +321,9 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
                           />
                         ))
                       }
-                      renderInput={(params) => <TextField label="Tags" {...params} />}
+                      renderInput={(params) => (
+                        <TextField label="Tags" {...params} />
+                      )}
                     />
                   )}
                 />
@@ -274,12 +336,16 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
                   name="price"
                   label="Regular Price"
                   placeholder="0.00"
-                  value={getValues('price') === 0 ? '' : getValues('price')}
-                  onChange={(event) => setValue('price', Number(event.target.value))}
+                  value={getValues("price") === 0 ? "" : getValues("price")}
+                  onChange={(event) =>
+                    setValue("price", Number(event.target.value))
+                  }
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
-                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                    type: 'number',
+                    startAdornment: (
+                      <InputAdornment position="start">$</InputAdornment>
+                    ),
+                    type: "number",
                   }}
                 />
 
@@ -287,12 +353,18 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
                   name="priceSale"
                   label="Sale Price"
                   placeholder="0.00"
-                  value={getValues('priceSale') === 0 ? '' : getValues('priceSale')}
-                  onChange={(event) => setValue('price', Number(event.target.value))}
+                  value={
+                    getValues("priceSale") === 0 ? "" : getValues("priceSale")
+                  }
+                  onChange={(event) =>
+                    setValue("price", Number(event.target.value))
+                  }
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
-                    startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                    type: 'number',
+                    startAdornment: (
+                      <InputAdornment position="start">$</InputAdornment>
+                    ),
+                    type: "number",
                   }}
                 />
               </Stack>
@@ -300,8 +372,13 @@ export default function ProductNewEditForm({ isEdit, currentProduct }: Props) {
               <RHFSwitch name="taxes" label="Price includes taxes" />
             </Card>
 
-            <LoadingButton type="submit" variant="contained" size="large" loading={isSubmitting}>
-              {!isEdit ? 'Create Product' : 'Save Changes'}
+            <LoadingButton
+              type="submit"
+              variant="contained"
+              size="large"
+              loading={isSubmitting}
+            >
+              {!isEdit ? "Create Product" : "Save Changes"}
             </LoadingButton>
           </Stack>
         </Grid>
