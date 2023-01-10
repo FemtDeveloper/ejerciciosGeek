@@ -141,6 +141,7 @@ export default function CheckoutOrderComplete({ open }: DialogProps) {
                 border: "none",
                 borderRadius: 5,
               }}
+              onClick={handleResetStep}
             >
               Download as PDF
             </button>
