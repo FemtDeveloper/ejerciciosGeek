@@ -44,7 +44,7 @@ const CheckoutResume = ({ cart }: Props) => {
             </Typography>
           </Box>
           <Typography variant="subtitle2">
-            $ {item.subtotal.toFixed(2)}
+            ${item.subtotal.toFixed(2)}
           </Typography>
         </Grid>
       ))}

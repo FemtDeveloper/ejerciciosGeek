@@ -19,13 +19,14 @@ import { PATH_DASHBOARD } from "../../../../routes/paths";
 // components
 import Iconify from "../../../../components/Iconify";
 import { DialogAnimate } from "../../../../components/animate";
+
+// pdf
+import { PDFDownloadLink, PDFViewer } from "@react-pdf/renderer";
 // assets
 import { OrderCompleteIllustration } from "../../../../assets";
-import { Grid } from "@mui/material";
-import { Variant } from "@mui/material/styles/createTypography";
-import style from "../../../overview/extra/map/zoom-to-bounds/map-style";
-import CheckoutResume from "./CheckoutResume";
-import CheckoutClientSummary from "./CheckoutClientSummary";
+
+import PdfInvoice from "./PdfInvoice";
+import ProductInvoice from "./ProductInvoice";
 
 // ----------------------------------------------------------------------
 
@@ -45,20 +46,6 @@ export default function CheckoutOrderComplete({ open }: DialogProps) {
   const { push } = useRouter();
   const { checkout } = useSelector((state) => state.product);
   const { cart, total, billing, invoiceDate, invoiceId } = checkout;
-
-  const options: Intl.DateTimeFormatOptions = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-  };
-
-  const date = new Date(invoiceDate!).toLocaleString("en-US", options);
-
-  console.log({ date });
 
   let totalItems = 0;
   cart.map((el) => {
@@ -83,21 +70,20 @@ export default function CheckoutOrderComplete({ open }: DialogProps) {
           </Typography>
 
           <OrderCompleteIllustration sx={{ height: 260, my: 10 }} />
+          <ProductInvoice
+            cart={cart}
+            billing={billing!}
+            invoiceDate={invoiceDate!}
+            invoiceId={invoiceId!}
+          />
+          {/* <PdfInvoice
+            cart={cart}
+            billing={billing!}
+            invoiceDate={invoiceDate!}
+            invoiceId={invoiceId!}
+            total={total}
+          /> */}
 
-          <Typography align="left" paragraph>
-            Invoice ID: &nbsp;
-            <Link href="#">{invoiceId}</Link>
-          </Typography>
-          <Typography variant="subtitle2" mb={4} textAlign="end">
-            Invoice Date: &nbsp; {date}
-          </Typography>
-
-          <CheckoutClientSummary billing={billing} />
-          {/* <Typography align="left" paragraph>
-            Thanks for placing order &nbsp;
-            <Link href="#">{invoiceId}</Link>
-          </Typography> */}
-          <CheckoutResume cart={cart} />
           <Box
             gap={1}
             display="flex"
@@ -134,13 +120,31 @@ export default function CheckoutOrderComplete({ open }: DialogProps) {
           >
             Continue Shopping
           </Button>
-          <Button
-            variant="contained"
-            startIcon={<Iconify icon={"ant-design:file-pdf-filled"} />}
-            onClick={handleResetStep}
+          <PDFDownloadLink
+            document={
+              <PdfInvoice
+                cart={cart}
+                billing={billing!}
+                invoiceDate={invoiceDate!}
+                invoiceId={invoiceId!}
+                total={total}
+              />
+            }
+            fileName={`invoice: ${invoiceId}.pdf`}
           >
-            Download as PDF
-          </Button>
+            <button
+              style={{
+                backgroundColor: "#00AB55",
+                color: "white",
+                fontWeight: "bold",
+                padding: "8px 10px",
+                border: "none",
+                borderRadius: 5,
+              }}
+            >
+              Download as PDF
+            </button>
+          </PDFDownloadLink>
         </Stack>
       </Box>
     </DialogStyle>
