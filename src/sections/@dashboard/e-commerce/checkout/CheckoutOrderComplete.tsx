@@ -57,8 +57,11 @@ export default function CheckoutOrderComplete({ open }: DialogProps) {
   console.log({ cart });
 
   const handleResetStep = () => {
-    dispatch(resetCart());
-    push(PATH_DASHBOARD.eCommerce.shop);
+    setTimeout(() => {
+      dispatch(resetCart());
+      push(PATH_DASHBOARD.eCommerce.shop);
+    }, 400);
+    console.log("downloading invoice");
   };
 
   return (
@@ -76,13 +79,6 @@ export default function CheckoutOrderComplete({ open }: DialogProps) {
             invoiceDate={invoiceDate!}
             invoiceId={invoiceId!}
           />
-          {/* <PdfInvoice
-            cart={cart}
-            billing={billing!}
-            invoiceDate={invoiceDate!}
-            invoiceId={invoiceId!}
-            total={total}
-          /> */}
 
           <Box
             gap={1}

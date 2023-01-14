@@ -2,7 +2,6 @@
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
 import { getDatabase, set, ref, update, remove } from "firebase/database";
-import { v4 } from "uuid";
 import { FormValuesProps } from "../sections/@dashboard/user/UserNewEditForm";
 import { FormValuesProps as FormProductValuesProps } from "../sections/@dashboard/e-commerce/ProductNewEditForm";
 import { Invoice } from "src/@types/product";
@@ -55,7 +54,6 @@ export const deleteUser = (id: string) => {
 export function uploadInvoice(data: Invoice, id: string, date: number) {
   console.log({ dataFromfunction: data });
   const db = getDatabase();
-  const invoiceId = v4();
 
   set(ref(db, "invoices/" + id), {
     ...data,
